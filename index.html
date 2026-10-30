@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PlayNest — Free Browser Games</title>
+<style>
+:root{--bg:#10131d;--panel:#1b2030;--panel2:#242b3e;--text:#f5f7ff;--muted:#aab2c8;--accent:#8b7cff;--accent2:#39d6b2;--line:#343c52}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:#10131ded;backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:14px max(18px,calc((100vw - 1180px)/2));display:flex;align-items:center;gap:18px}
+.logo{font-weight:900;font-size:24px;letter-spacing:-1px;white-space:nowrap}.logo span{color:var(--accent2)}
+.search{flex:1;max-width:520px;margin-left:auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:11px 14px;color:var(--text);font-size:15px;outline:none}
+.search:focus{border-color:var(--accent)}.hero{max-width:1180px;margin:28px auto 22px;padding:0 18px}
+.heroBox{background:linear-gradient(120deg,#29265b,#1c5660);border:1px solid #49477b;border-radius:24px;padding:28px;display:flex;justify-content:space-between;align-items:center;gap:20px}
+.hero h1{font-size:clamp(27px,4vw,42px);margin:0 0 8px}.hero p{color:#d5d9ef;margin:0}.heroBadge{font-size:48px}
+main{max-width:1180px;margin:auto;padding:0 18px 50px}.filters{display:flex;gap:9px;flex-wrap:wrap;margin:20px 0}
+.chip{border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:999px;padding:9px 15px;cursor:pointer}.chip.active,.chip:hover{background:var(--accent);border-color:var(--accent);color:white}
+.sectionTitle{display:flex;justify-content:space-between;align-items:center;margin:24px 0 13px}.sectionTitle h2{font-size:21px;margin:0}.sectionTitle small{color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:15px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:17px;overflow:hidden;cursor:pointer;transition:.18s;position:relative}.card:hover{transform:translateY(-4px);border-color:#7770d8}
+.thumb{height:125px;display:grid;place-items:center;font-size:54px;background:linear-gradient(135deg,#30395a,#202b3e)}.card:nth-child(4n+2) .thumb{background:linear-gradient(135deg,#4b315d,#252b47)}.card:nth-child(4n+3) .thumb{background:linear-gradient(135deg,#24574e,#202b47)}.card:nth-child(4n+4) .thumb{background:linear-gradient(135deg,#66502b,#292b43)}
+.cardInfo{padding:12px}.cardInfo strong{display:block}.cardInfo small{color:var(--muted)}.fav{position:absolute;right:9px;top:9px;border:0;border-radius:50%;width:33px;height:33px;background:#10131dcc;color:white;font-size:17px;cursor:pointer}
+.empty{color:var(--muted);padding:25px;text-align:center;grid-column:1/-1}
+footer{max-width:1180px;margin:auto;padding:0 18px 28px;color:var(--muted);font-size:13px}
+.modal{display:none;position:fixed;inset:0;background:#080a10e8;z-index:10;padding:18px;overflow:auto}.modal.show{display:grid;place-items:center}
+.gamebox{width:min(760px,100%);background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:18px;max-height:94vh;overflow:auto}
+.gamehead{display:flex;justify-content:space-between;align-items:center;gap:10px}.gamehead h2{margin:0}.close{background:var(--panel2);border:1px solid var(--line);color:white;border-radius:10px;padding:8px 12px;cursor:pointer}
+.gamearea{margin-top:16px;min-height:300px;display:grid;place-items:center;background:#121725;border-radius:15px;padding:16px}
+button{font:inherit}.action{background:var(--accent);border:0;color:white;padding:10px 16px;border-radius:11px;cursor:pointer;font-weight:700}.secondary{background:var(--panel2);border:1px solid var(--line);color:white;padding:9px 13px;border-radius:10px;cursor:pointer}
+canvas{max-width:100%;background:#0d1320;border-radius:10px;touch-action:none}.game-note{color:var(--muted);font-size:13px;margin:12px 2px 0}
+.ttt{display:grid;grid-template-columns:repeat(3, min(22vw,100px));gap:8px}.ttt button{height:min(22vw,100px);font-size:36px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;color:white}
+.memory{display:grid;grid-template-columns:repeat(4,min(17vw,88px));gap:9px}.memory button{height:min(17vw,88px);font-size:30px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;color:white}
+.tiles{display:grid;grid-template-columns:repeat(4, min(17vw,82px));gap:7px;background:#30384b;padding:8px;border-radius:12px}.tile{height:min(17vw,82px);display:grid;place-items:center;background:#48536b;border-radius:8px;font-weight:900;font-size:23px}.tile.n0{background:#222a3a}
+.controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+@media(max-width:560px){header{gap:10px;padding:12px}.logo{font-size:20px}.search{min-width:0;width:100%;font-size:14px}.hero{margin-top:18px}.heroBox{padding:20px}.heroBadge{font-size:36px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.thumb{height:105px;font-size:45px}.cardInfo{padding:10px}}
+</style>
+</head>
+<body>
+<header><div class="logo">Play<span>Nest</span> 🎮</div><input id="search" class="search" placeholder="Search games..." aria-label="Search games"></header>
+<section class="hero"><div class="heroBox"><div><h1>Pick a game. Take a break.</h1><p>Free mini-games that run right here in your browser.</p></div><div class="heroBadge">🕹️</div></div></section>
+<main>
+<div class="sectionTitle"><h2>Explore games</h2><small id="count">8 games</small></div>
+<div class="filters" id="filters"></div>
+<div class="grid" id="grid"></div>
+</main>
+<footer>PlayNest is an original mini-game demo. Games run locally in your browser; no account required.</footer>
+<div class="modal" id="modal"><div class="gamebox"><div class="gamehead"><h2 id="gameTitle">Game</h2><button class="close" id="close">✕ Close</button></div><div class="gamearea" id="gamearea"></div><div class="game-note" id="note"></div></div></div>
+<script>
+const games=[
+{id:'snake',name:'Snake',cat:'Arcade',emoji:'🐍',desc:'Eat, grow and avoid the walls.'},
+{id:'memory',name:'Memory Match',cat:'Puzzle',emoji:'🧠',desc:'Find all matching pairs.'},
+{id:'ttt',name:'Tic-Tac-Toe',cat:'Puzzle',emoji:'⭕',desc:'Play against a friend on one device.'},
+{id:'2048',name:'2048',cat:'Puzzle',emoji:'🔢',desc:'Merge tiles to reach 2048.'},
+{id:'reaction',name:'Reaction Test',cat:'Skill',emoji:'⚡',desc:'Test how fast you can react.'},
+{id:'clicker',name:'Star Clicker',cat:'Arcade',emoji:'⭐',desc:'Click stars and beat your score.'},
+{id:'rps',name:'Rock Paper Scissors',cat:'Casual',emoji:'✊',desc:'Challenge the computer.'},
+{id:'guess',name:'Number Guess',cat:'Casual',emoji:'🎯',desc:'Find the secret number in fewer tries.'}
+];
+let category='All',favorites=new Set(JSON.parse(localStorage.getItem('pn-favs')||'[]'));
+const grid=document.getElementById('grid'),search=document.getElementById('search');
+const cats=['All','Arcade','Puzzle','Skill','Casual','★ Favorites'];
+function render(){
+ document.getElementById('filters').innerHTML=cats.map(c=>`<button class="chip ${category===c?'active':''}" data-cat="${c}">${c}</button>`).join('');
+ document.querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>{category=b.dataset.cat;render()});
+ let q=search.value.toLowerCase();
+ let list=games.filter(g=>(category==='All'||(category==='★ Favorites'?favorites.has(g.id):g.cat===category))&&(g.name.toLowerCase().includes(q)||g.desc.toLowerCase().includes(q)));
+ document.getElementById('count').textContent=`${list.length} games`;
+ grid.innerHTML=list.length?list.map(g=>`<article class="card" data-game="${g.id}"><button class="fav" data-fav="${g.id}" title="Favorite">${favorites.has(g.id)?'♥':'♡'}</button><div class="thumb">${g.emoji}</div><div class="cardInfo"><strong>${g.name}</strong><small>${g.cat} · ${g.desc}</small></div></article>`).join(''):'<div class="empty">No games found. Try another search.</div>';
+ document.querySelectorAll('[data-game]').forEach(c=>c.onclick=()=>openGame(c.dataset.game));
+ document.querySelectorAll('[data-fav]').forEach(b=>b.onclick=e=>{e.stopPropagation();let id=b.dataset.fav;favorites.has(id)?favorites.delete(id):favorites.add(id);localStorage.setItem('pn-favs',JSON.stringify([...favorites]));render()});
+}
+search.addEventListener('input',render);render();
+const modal=document.getElementById('modal'),area=document.getElementById('gamearea'),title=document.getElementById('gameTitle'),note=document.getElementById('note');
+document.getElementById('close').onclick=()=>{modal.classList.remove('show');area.innerHTML=''};
+function openGame(id){modal.classList.add('show');let g=games.find(x=>x.id===id);title.textContent=g.name;area.innerHTML='';note.textContent=g.desc;
+ if(id==='snake')snake(); if(id==='memory')memory();if(id==='ttt')ttt();if(id==='2048')game2048();if(id==='reaction')reaction();if(id==='clicker')clicker();if(id==='rps')rps();if(id==='guess')guess();
+}
+function snake(){
+ area.innerHTML='<div style="text-align:center"><div>Score: <b id="ss">0</b></div><canvas id="sc" width="360" height="360"></canvas><div class="controls"><button class="secondary" id="sstart">Start / Restart</button><span style="color:#aab2c8">Arrow keys or WASD</span></div></div>';
+ const c=document.getElementById('sc'),ctx=c.getContext('2d'),n=18,cell=20;let body,dir,food,score,timer;
+ function reset(){clearInterval(timer);body=[{x:8,y:9},{x:7,y:9},{x:6,y:9}];dir={x:1,y:0};score=0;document.getElementById('ss').textContent=0;place();draw();timer=setInterval(step,115)}
+ function place(){food={x:Math.floor(Math.random()*n),y:Math.floor(Math.random()*n)}}
+ function draw(){ctx.fillStyle='#0d1320';ctx.fillRect(0,0,360,360);ctx.fillStyle='#ffca5c';ctx.fillRect(food.x*cell+3,food.y*cell+3,14,14);body.forEach((p,i)=>{ctx.fillStyle=i?'#39d6b2':'#8b7cff';ctx.fillRect(p.x*cell+1,p.y*cell+1,18,18)})}
+ function step(){let h={x:body[0].x+dir.x,y:body[0].y+dir.y};if(h.x<0||h.y<0||h.x>=n||h.y>=n||body.some(p=>p.x===h.x&&p.y===h.y)){clearInterval(timer);note.textContent='Game over! Press Start / Restart to play again.';return}body.unshift(h);if(h.x===food.x&&h.y===food.y){score+=10;document.getElementById('ss').textContent=score;place()}else body.pop();draw()}
+ document.getElementById('sstart').onclick=reset;document.onkeydown=e=>{let d={ArrowUp:[0,-1],w:[0,-1],ArrowDown:[0,1],s:[0,1],ArrowLeft:[-1,0],a:[-1,0],ArrowRight:[1,0],d:[1,0]}[e.key];if(d&&!(d[0]===-dir.x&&d[1]===-dir.y))dir={x:d[0],y:d[1]}};reset();
+}
+function memory(){
+ let symbols=['🍎','🚀','🐼','🎲','🌈','⚽','🍕','🦊'],cards=[...symbols,...symbols].sort(()=>Math.random()-.5),first=null,lock=false,matches=0,moves=0;
+ area.innerHTML='<div style="text-align:center"><p>Moves: <b id="mm">0</b> · Matches: <b id="mc">0/8</b></p><div class="memory" id="mem"></div><button class="secondary" id="mr" style="margin-top:14px">Restart</button></div>';
+ const board=document.getElementById('mem');
+ function draw(){board.innerHTML=cards.map((s,i)=>`<button data-i="${i}">${opened.has(i)||matched.has(i)?s:'?'}</button>`).join('');board.querySelectorAll('button').forEach(b=>b.onclick=()=>flip(+b.dataset.i))}
+ let opened=new Set(),matched=new Set();function flip(i){if(lock||opened.has(i)||matched.has(i))return;opened.add(i);moves++;document.getElementById('mm').textContent=moves;draw();if(opened.size===2){let a=[...opened];if(cards[a[0]]===cards[a[1]]){a.forEach(x=>matched.add(x));opened.clear();matches++;document.getElementById('mc').textContent=matches+'/8';draw();if(matches===8)note.textContent=`You matched every pair in ${moves} moves!`}else{lock=true;setTimeout(()=>{opened.clear();lock=false;draw()},750)}}}
+ function restart(){opened.clear();matched.clear();matches=0;moves=0;cards.sort(()=>Math.random()-.5);document.getElementById('mm').textContent=0;document.getElementById('mc').textContent='0/8';draw()}document.getElementById('mr').onclick=restart;draw();
+}
+function ttt(){
+ area.innerHTML='<div style="text-align:center"><h3 id="ts">X goes first</h3><div class="ttt" id="tt"></div><button class="secondary" id="tr" style="margin-top:14px">Restart</button></div>';
+ let board=Array(9).fill(''),turn='X',done=false;const el=document.getElementById('tt'),status=document.getElementById('ts');
+ function draw(){el.innerHTML=board.map((v,i)=>`<button data-i="${i}">${v}</button>`).join('');el.querySelectorAll('button').forEach(b=>b.onclick=()=>play(+b.dataset.i))}
+ function play(i){if(done||board[i])return;board[i]=turn;let wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];let win=wins.some(line=>line.every(j=>board[j]===turn));if(win){done=true;status.textContent=turn+' wins!'}else if(board.every(Boolean)){done=true;status.textContent='It is a draw!'}else{turn=turn==='X'?'O':'X';status.textContent=turn+' goes next'}draw()}
+ document.getElementById('tr').onclick=()=>{board=Array(9).fill('');turn='X';done=false;status.textContent='X goes first';draw()};draw();
+}
+function game2048(){
+ area.innerHTML='<div style="text-align:center"><p>Score: <b id="sc2048">0</b> · Use arrow keys</p><div class="tiles" id="tiles"></div><button class="secondary" id="r2048" style="margin-top:12px">New game</button></div>';
+ let b=Array(16).fill(0),score=0;const el=document.getElementById('tiles');function add(){let z=b.map((v,i)=>v===0?i:-1).filter(i=>i>=0);if(z.length)b[z[Math.floor(Math.random()*z.length)]]=Math.random()<.9?2:4}
+ function draw(){el.innerHTML=b.map(v=>`<div class="tile ${v===0?'n0':''}" style="${v>=64?'background:#7658a6':''}">${v||''}</div>`).join('');document.getElementById('sc2048').textContent=score}
+ function move(dir){let old=b.join(',');for(let line=0;line<4;line++){let ids=Array.from({length:4},(_,k)=>dir==='left'||dir==='right'?line*4+(dir==='left'?k:3-k):(dir==='up'?k*4+line:(3-k)*4+line));let vals=ids.map(i=>b[i]).filter(Boolean),out=[];for(let j=0;j<vals.length;j++){if(vals[j]===vals[j+1]){out.push(vals[j]*2);score+=vals[j]*2;j++}else out.push(vals[j])}while(out.length<4)out.push(0);ids.forEach((id,k)=>b[id]=out[k])}if(old!==b.join(',')){add();draw()}}
+ document.onkeydown=e=>{let m={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down'}[e.key];if(m){e.preventDefault();move(m)}};function reset(){b=Array(16).fill(0);score=0;add();add();draw()}document.getElementById('r2048').onclick=reset;reset();note.textContent='Combine equal numbers. Try to reach 2048.';
+}
+function reaction(){
+ area.innerHTML='<div style="text-align:center;max-width:430px"><h3 id="rt">Tap start, then wait for green.</h3><div id="rbox" style="height:180px;width:min(75vw,360px);border-radius:16px;background:#6c3944;display:grid;place-items:center;font-size:24px;font-weight:800;margin:15px auto;cursor:pointer">WAIT</div><button class="action" id="rs">Start</button><p>Best reaction time: <b id="rb">—</b></p></div>';
+ let start=0,timer=null,state='idle',best=Infinity;const box=document.getElementById('rbox'),txt=document.getElementById('rt');
+ document.getElementById('rs').onclick=()=>{clearTimeout(timer);state='wait';box.style.background='#a14b3f';box.textContent='WAIT';txt.textContent='Wait for green...';timer=setTimeout(()=>{state='go';start=performance.now();box.style.background='#168b68';box.textContent='TAP NOW!'},1200+Math.random()*2800)};
+ box.onclick=()=>{if(state==='wait'){clearTimeout(timer);state='idle';txt.textContent='Too soon! Press Start to try again.';box.textContent='TOO SOON';box.style.background='#6c3944'}else if(state==='go'){let t=Math.round(performance.now()-start);best=Math.min(best,t);document.getElementById('rb').textContent=best+' ms';txt.textContent='Your time: '+t+' ms';box.textContent=t+' ms';box.style.background='#34415b';state='idle'}};
+}
+function clicker(){
+ area.innerHTML='<div style="text-align:center"><h3>Score: <b id="cs">0</b></h3><p>Time: <b id="ct">15</b>s</p><button id="star" style="font-size:75px;background:transparent;border:0;cursor:pointer">⭐</button><p><button class="action" id="cb">Start 15-second round</button></p></div>';
+ let score=0,left=15,run=false,timer;const star=document.getElementById('star');function end(){run=false;clearInterval(timer);note.textContent='Round finished! You scored '+score+' stars.'}
+ document.getElementById('cb').onclick=()=>{score=0;left=15;run=true;document.getElementById('cs').textContent=0;document.getElementById('ct').textContent=15;clearInterval(timer);timer=setInterval(()=>{left--;document.getElementById('ct').textContent=left;if(left<=0)end()},1000)};
+ star.onclick=()=>{if(run){score++;document.getElementById('cs').textContent=score}};
+}
+function rps(){
+ area.innerHTML='<div style="text-align:center"><h3 id="rsx">Choose your move</h3><div class="controls"><button class="secondary" data-r="Rock">✊ Rock</button><button class="secondary" data-r="Paper">✋ Paper</button><button class="secondary" data-r="Scissors">✌️ Scissors</button></div><p id="rscore">You 0 — 0 Computer</p></div>';
+ let you=0,pc=0;area.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{let a=b.dataset.r,opts=['Rock','Paper','Scissors'],c=opts[Math.floor(Math.random()*3)],res=a===c?'Draw':((a==='Rock'&&c==='Scissors')||(a==='Paper'&&c==='Rock')||(a==='Scissors'&&c==='Paper'))?'You win!':'Computer wins!';if(res==='You win!')you++;if(res==='Computer wins!')pc++;document.getElementById('rsx').textContent=`You: ${a} · Computer: ${c} — ${res}`;document.getElementById('rscore').textContent=`You ${you} — ${pc} Computer`});
+}
+function guess(){
+ area.innerHTML='<div style="text-align:center"><h3>Guess a number from 1 to 100</h3><input id="gi" type="number" min="1" max="100" style="padding:12px;border-radius:10px;width:130px;border:1px solid #555;background:#242b3e;color:white"><button class="action" id="gb">Guess</button><p id="gh">You have 7 tries.</p><button class="secondary" id="gn">New number</button></div>';
+ let secret=Math.floor(Math.random()*100)+1,tries=7,done=false;function reset(){secret=Math.floor(Math.random()*100)+1;tries=7;done=false;document.getElementById('gh').textContent='You have 7 tries.';document.getElementById('gi').value=''}
+ document.getElementById('gb').onclick=()=>{let v=Number(document.getElementById('gi').value);if(done||!v||v<1||v>100){document.getElementById('gh').textContent='Enter a number from 1 to 100.';return}tries--;if(v===secret){document.getElementById('gh').textContent='Correct! You found it.';done=true}else if(!tries){document.getElementById('gh').textContent='Out of tries! The number was '+secret;done=true}else document.getElementById('gh').textContent=(v<secret?'Too low. ':'Too high. ')+tries+' tries left.'};
+ document.getElementById('gn').onclick=reset;
+}
+</script>
+</body></html>
